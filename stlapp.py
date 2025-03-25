@@ -26,6 +26,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
+import sys
+import subprocess
+
+# Ensure transformers is installed
+try:
+    import transformers
+except ImportError:
+    subprocess.run([sys.executable, "-m", "pip", "install", "transformers"])
+    import transformers
+
 from transformers import pipeline
 
 # Load dataset 
@@ -41,7 +51,7 @@ if "review" not in df.columns or "product_name" not in df.columns:
     st.error("Dataset must contain 'product_name' and 'review' columns!")
 else:
     # Initialize sentiment analysis pipeline
-    sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
+    sentiment_pipeline = pipeline("sentiment-analysis")
 
     # Function to analyze sentiment
     def analyze_sentiment(review):
