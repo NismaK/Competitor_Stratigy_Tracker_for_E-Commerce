@@ -22,7 +22,7 @@ st.table(product_data.tail())
 
 # Sentiment Analysis on Reviews
 if not product_reviews.empty:
-    product_reviews["review"] = product_reviews["reviews"].apply(lambda x: x[:50] + "..." if len(x) > 50 else x)
+    product_reviews["review"] = product_reviews["review"].apply(lambda x: x[:50] + "..." if len(x) > 50 else x)
     reviews = product_reviews["review"].tolist()
     sentiments = analyze_sentiment(reviews)
     
