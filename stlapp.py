@@ -41,7 +41,7 @@ if "review" not in df.columns or "product_name" not in df.columns:
     st.error("Dataset must contain 'product_name' and 'review' columns!")
 else:
     # Initialize sentiment analysis pipeline
-    sentiment_pipeline = pipeline("sentiment-analysis")
+    sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 
     # Function to analyze sentiment
     def analyze_sentiment(review):
