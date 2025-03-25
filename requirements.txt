@@ -7,3 +7,5 @@ matplotlib
 seaborn
 transformers
 pipeline
+tensor flow
+pytorch
