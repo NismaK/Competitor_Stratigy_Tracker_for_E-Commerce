@@ -23,26 +23,50 @@ st.table(product_data.tail())
 
 # Sentiment Analysis on Reviews
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import streamlit as st
 from transformers import pipeline
 
-# Load dataset
-file_path = "product_reviews.csv"
+# Load dataset 
+file_path = "product_reviews.csv" 
 df = pd.read_csv(file_path)
 
-# Initialize sentiment analysis pipeline
-sentiment_pipeline = pipeline("sentiment-analysis")
+# Streamlit UI
+st.title("Product Review Sentiment Analysis")
+st.write("This dashboard shows the sentiment analysis of product reviews.")
 
-# Function to analyze sentiment
-def analyze_sentiment(review):
-    result = sentiment_pipeline(review)[0]
-    return result["label"]
-
-# Apply sentiment analysis
-df["Sentiment"] = df["review"].apply(analyze_sentiment)
-st.subheader("Customer Sentiment Analysis")
-df = pd.DataFrame(sentiments, columns=["label", "sentiment"])
-fig = px.bar(sentiment_df, x="label", y="sentiment", title="Sentiment Analysis Results")
-st.plotly_chart(fig)
+# Check if required columns exist
+if "review" not in df.columns or "product" not in df.columns:
+    st.error("Dataset must contain 'product' and 'review' columns!")
 else:
-    st.write("No reviews available for this product.")
+    # Initialize sentiment analysis pipeline
+    sentiment_pipeline = pipeline("sentiment-analysis")
 
+    # Function to analyze sentiment
+    def analyze_sentiment(review):
+        result = sentiment_pipeline(review)[0]
+        return result["label"]
+
+    # Apply sentiment analysis
+    df["Sentiment"] = df["review"].apply(analyze_sentiment)
+
+    # Group data by product and sentiment
+    sentiment_counts = df.groupby(["product", "Sentiment"]).size().unstack(fill_value=0)
+
+    # Plot sentiment distribution
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sentiment_counts.plot(kind="bar", stacked=True, colormap="viridis", ax=ax)
+    plt.title("Sentiment Analysis of Products")
+    plt.xlabel("Product")
+    plt.ylabel("Count of Sentiments")
+    plt.legend(title="Sentiment")
+    plt.xticks(rotation=45, ha="right")
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+    # Display plot in Streamlit
+    st.pyplot(fig)
+
+    # Show processed data
+    st.write("Processed Data:")
+    st.dataframe(df)
