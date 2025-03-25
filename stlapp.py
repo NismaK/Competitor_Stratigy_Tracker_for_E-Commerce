@@ -37,8 +37,8 @@ st.title("Product Review Sentiment Analysis")
 st.write("This dashboard shows the sentiment analysis of product reviews.")
 
 # Check if required columns exist
-if "review" not in df.columns or "product" not in df.columns:
-    st.error("Dataset must contain 'product' and 'review' columns!")
+if "review" not in df.columns or "product_name" not in df.columns:
+    st.error("Dataset must contain 'product_name' and 'review' columns!")
 else:
     # Initialize sentiment analysis pipeline
     sentiment_pipeline = pipeline("sentiment-analysis")
@@ -52,7 +52,7 @@ else:
     df["Sentiment"] = df["review"].apply(analyze_sentiment)
 
     # Group data by product and sentiment
-    sentiment_counts = df.groupby(["product", "Sentiment"]).size().unstack(fill_value=0)
+    sentiment_counts = df.groupby(["product_name", "Sentiment"]).size().unstack(fill_value=0)
 
     # Plot sentiment distribution
     fig, ax = plt.subplots(figsize=(12, 6))
