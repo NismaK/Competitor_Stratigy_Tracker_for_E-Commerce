@@ -1,7 +1,7 @@
 import pandas as pd
 
 def load_competitor_data():
-    return pd.read_csv("price_discount_predictions.csv")
+    return pd.read_csv("Prices_Dataset.csv")
 
 def load_reviews_data():
     return pd.read_csv("product_reviews.csv")
