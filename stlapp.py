@@ -22,15 +22,27 @@ st.subheader("Competitor Data")
 st.table(product_data.tail())
 
 # Sentiment Analysis on Reviews
-if not product_reviews.empty:
-    product_reviews["review"] = product_reviews["review"].apply(lambda x: x[:50] + "..." if len(x) > 50 else x)
-    reviews = product_reviews["review"].tolist()
-    sentiments = analyze_sentiment(reviews)
-    
-    st.subheader("Customer Sentiment Analysis")
-    sentiment_df = pd.DataFrame(sentiments, columns=["label", "sentiment"])
-    fig = px.bar(sentiment_df, x="label", y="sentiment", title="Sentiment Analysis Results")
-    st.plotly_chart(fig)
+import pandas as pd
+from transformers import pipeline
+
+# Load dataset
+file_path = "product_reviews.csv"
+df = pd.read_csv(file_path)
+
+# Initialize sentiment analysis pipeline
+sentiment_pipeline = pipeline("sentiment-analysis")
+
+# Function to analyze sentiment
+def analyze_sentiment(review):
+    result = sentiment_pipeline(review)[0]
+    return result["label"]
+
+# Apply sentiment analysis
+df["Sentiment"] = df["review"].apply(analyze_sentiment)
+st.subheader("Customer Sentiment Analysis")
+df = pd.DataFrame(sentiments, columns=["label", "sentiment"])
+fig = px.bar(sentiment_df, x="label", y="sentiment", title="Sentiment Analysis Results")
+st.plotly_chart(fig)
 else:
     st.write("No reviews available for this product.")
 
