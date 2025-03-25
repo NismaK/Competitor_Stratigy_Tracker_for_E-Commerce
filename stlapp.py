@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from model import analyze_sentiment, load_competitor_data, load_reviews_data
+st.title("E-commerce Competitor Strategy Dashboard")
 
 # Load data
 competitor_data = load_competitor_data()
