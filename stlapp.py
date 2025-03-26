@@ -25,24 +25,31 @@ st.title("Sentiment Analysis Dashboard")
 
 
 # Sentiment Analysis Function
-# Sentiment Analysis Function
+from transformers import pipeline
+
+# Load a pre-trained sentiment analysis model
+sentiment_pipeline = pipeline("sentiment-analysis")
+
 def get_sentiment(text):
     if pd.isna(text) or not isinstance(text, str) or text.strip() == "":
         return "Neutral"  # Assign 'Neutral' for missing/empty values
-    analysis = TextBlob(str(text))  # Ensure input is a string
-    if analysis.sentiment.polarity > 0:
+    
+    result = sentiment_pipeline(text)[0]  # Get sentiment prediction
+    sentiment = result["label"]
+
+    # Convert model output to simpler labels
+    if sentiment == "POSITIVE":
         return "Positive"
-    elif analysis.sentiment.polarity < 0:
+    elif sentiment == "NEGATIVE":
         return "Negative"
     else:
         return "Neutral"
 
-# Ensure 'review' column exists and has valid data
+# Apply sentiment analysis using BERT
 if "review" in product_reviews.columns:
     product_reviews["Sentiment"] = product_reviews["review"].astype(str).apply(get_sentiment)
 else:
     st.error("The 'review' column is missing in the dataset.")
-
 
 # Sentiment Distribution Visualization
 st.subheader("Sentiment Distribution")
