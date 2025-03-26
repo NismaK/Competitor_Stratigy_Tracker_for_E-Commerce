@@ -25,8 +25,11 @@ st.title("Sentiment Analysis Dashboard")
 
 
 # Sentiment Analysis Function
+# Sentiment Analysis Function
 def get_sentiment(text):
-    analysis = TextBlob(str(text))  # Convert to string and analyze
+    if pd.isna(text) or not isinstance(text, str):
+        return "Neutral"  # Assign 'Neutral' for missing/non-string values
+    analysis = TextBlob(text)
     if analysis.sentiment.polarity > 0:
         return "Positive"
     elif analysis.sentiment.polarity < 0:
@@ -36,7 +39,7 @@ def get_sentiment(text):
 
 # Apply sentiment analysis
 product_reviews["Sentiment"] = product_reviews["review"].apply(get_sentiment)
-# product_reviews=pd.read_csv("sentiment_results.csv")
+
 
 # Sentiment Distribution Visualization
 st.subheader("Sentiment Distribution")
