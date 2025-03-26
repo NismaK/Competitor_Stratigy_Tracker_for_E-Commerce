@@ -69,3 +69,31 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
+# Load LLM pipeline for text generation
+llm = pipeline("text-generation", model="gpt2")
+# Function to generate recommendations using LLM
+def generate_recommendation(prompt):
+    # Increased max_length and added max_new_tokens
+    response = llm(prompt, max_length=250, num_return_sequences=1, max_new_tokens=100)  
+    return response[0]['generated_text']
+
+# Generate strategic recommendations
+pricing_prompt = f"Suggest a pricing strategy based on the competitor pricing for {selected_product}: {product_data['price'].tolist()}"
+promotions_prompt = f"Suggest promotional campaign ideas for {selected_product} based on competitor marketing strategies."
+customer_prompt = f"Based on customer reviews, suggest ways to improve customer satisfaction for {selected_product}: {product_reviews['review'].tolist()}"
+
+pricing_recommendation = generate_recommendation(pricing_prompt)
+promotional_recommendation = generate_recommendation(promotions_prompt)
+customer_recommendation = generate_recommendation(customer_prompt)
+
+# Display Recommendations
+st.header(f"Strategic Recommendations for {selected_product}")
+
+st.subheader("1️⃣ Pricing Strategy")
+st.write(pricing_recommendation)
+
+st.subheader("2️⃣ Promotional Campaign Ideas")
+st.write(promotional_recommendation)
+
+st.subheader("3️⃣ Customer Satisfaction Recommendations")
+st.write(customer_recommendation)
