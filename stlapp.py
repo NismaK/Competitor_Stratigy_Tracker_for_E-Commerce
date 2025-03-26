@@ -69,6 +69,8 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
 from wordcloud import WordCloud, STOPWORDS
 from transformers import pipeline
 import re
