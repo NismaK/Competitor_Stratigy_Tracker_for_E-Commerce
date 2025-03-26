@@ -23,12 +23,6 @@ st.table(product_data.tail())
 
 st.title("Sentiment Analysis Dashboard")
 
-# Sidebar for product selection
-products = reviews_data["product_name"].unique().tolist()
-selected_product = st.sidebar.selectbox("Choose a product to analyze:", products)
-
-# Filter data for the selected product
-product_reviews = reviews_data[reviews_data["product_name"] == selected_product]
 
 # Sentiment Analysis Function
 def get_sentiment(text):
