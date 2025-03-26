@@ -27,9 +27,9 @@ st.title("Sentiment Analysis Dashboard")
 # Sentiment Analysis Function
 # Sentiment Analysis Function
 def get_sentiment(text):
-    if pd.isna(text) or not isinstance(text, str):
-        return "Neutral"  # Assign 'Neutral' for missing/non-string values
-    analysis = TextBlob(text)
+    if pd.isna(text) or not isinstance(text, str) or text.strip() == "":
+        return "Neutral"  # Assign 'Neutral' for missing/empty values
+    analysis = TextBlob(str(text))  # Ensure input is a string
     if analysis.sentiment.polarity > 0:
         return "Positive"
     elif analysis.sentiment.polarity < 0:
@@ -37,8 +37,11 @@ def get_sentiment(text):
     else:
         return "Neutral"
 
-# Apply sentiment analysis
-product_reviews["Sentiment"] = product_reviews["review"].apply(get_sentiment)
+# Ensure 'review' column exists and has valid data
+if "review" in product_reviews.columns:
+    product_reviews["Sentiment"] = product_reviews["review"].astype(str).apply(get_sentiment)
+else:
+    st.error("The 'review' column is missing in the dataset.")
 
 
 # Sentiment Distribution Visualization
