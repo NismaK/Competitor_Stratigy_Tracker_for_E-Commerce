@@ -69,31 +69,38 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
-# Load LLM pipeline for text generation
-llm = pipeline("text-generation", model="gpt2")
-# Function to generate recommendations using LLM
-def generate_recommendation(prompt):
-    # Increased max_length and added max_new_tokens
-    response = llm(prompt, max_length=250, num_return_sequences=1, max_new_tokens=100)  
-    return response[0]['generated_text']
+from transformers import pipeline
 
-# Generate strategic recommendations
-pricing_prompt = f"Suggest a pricing strategy based on the competitor pricing for {selected_product}: {product_data['price'].tolist()}"
-promotions_prompt = f"Suggest promotional campaign ideas for {selected_product} based on competitor marketing strategies."
-customer_prompt = f"Based on customer reviews, suggest ways to improve customer satisfaction for {selected_product}: {product_reviews['review'].tolist()}"
+# Load a publicly accessible LLM 
+llm_pipeline = pipeline("text-generation", model="google/flan-t5-xl") # Changed to a public model
 
-pricing_recommendation = generate_recommendation(pricing_prompt)
-promotional_recommendation = generate_recommendation(promotions_prompt)
-customer_recommendation = generate_recommendation(customer_prompt)
+# Generate Strategy Button
+st.subheader("🔍 AI-Generated Strategic Recommendations")
 
-# Display Recommendations
-st.header(f"Strategic Recommendations for {selected_product}")
+if st.button("Generate Strategy Insights"):
+    # Prepare prompt
+    competitor_prices = product_data["price"].tolist()
+    sentiment_summary = {
+        "Positive": sentiment_counts.get("Positive", 0),
+        "Negative": sentiment_counts.get("Negative", 0),
+        "Neutral": sentiment_counts.get("Neutral", 0),
+    }
 
-st.subheader("1️⃣ Pricing Strategy")
-st.write(pricing_recommendation)
+    prompt = f"""
+    You are a highly skilled e-commerce strategist. Based on the following data, suggest strategies to optimize pricing, promotions, and customer satisfaction:
 
-st.subheader("2️⃣ Promotional Campaign Ideas")
-st.write(promotional_recommendation)
+    1. **Product Name**: {selected_product}
+    2. **Competitor Prices**: {competitor_prices}
+    3. **Sentiment Analysis Summary**: {sentiment_summary}
 
-st.subheader("3️⃣ Customer Satisfaction Recommendations")
-st.write(customer_recommendation)
+    ### Task:
+    - Identify pricing trends based on competitor prices.
+    - Leverage sentiment insights to improve customer satisfaction.
+    - Suggest promotional campaigns aligned with sentiment trends.
+    - Ensure strategies are practical, business-oriented, and competitive.
+
+    Provide structured recommendations:
+    1. **Pricing Strategy**
+    2. **Promotional Campaign Ideas**
+    3. **Customer Satisfaction Recommendations**
+    """
