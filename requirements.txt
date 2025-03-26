@@ -3,7 +3,7 @@ pandas
 plotly
 scikit-learn
 numpy
-matplotlib
+matplotlib.pyplot
 seaborn
 transformers
 pipeline
