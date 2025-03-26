@@ -69,4 +69,85 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
+from transformers import pipeline
+# Use a smaller, more accessible model for text generation
+from transformers import AutoModelForCausalLM, AutoTokenizer
+# Strategic Recommendation Generation Function
+def generate_strategic_recommendations(product_name, sentiment_data, reviews_data):
+    """
+    Generate strategic recommendations using a lightweight language model
+    
+    Args:
+        product_name (str): Name of the product
+        sentiment_data (pd.Series): Sentiment distribution
+        reviews_data (pd.DataFrame): Raw review data
+    
+    Returns:
+        str: Strategic recommendations for promotional campaigns and improvements
+    """
+    # Analyze sentiment distribution
+    positive_percentage = (sentiment_data.get('Positive', 0) / len(sentiment_data)) * 100
+    negative_percentage = (sentiment_data.get('Negative', 0) / len(sentiment_data)) * 100
+    
+    # Extract key insights from reviews
+    top_positive_words = WordCloud(width=800, height=400).process(all_reviews)
+    key_positive_features = sorted(top_positive_words, key=top_positive_words.get, reverse=True)[:5]
+    
+    # Construct prompt for recommendation generation
+    prompt = f"""Based on product analysis, generate strategic recommendations:
 
+Product: {product_name}
+Sentiment Analysis:
+- Positive Reviews: {positive_percentage:.2f}%
+- Negative Reviews: {negative_percentage:.2f}%
+Key Positive Features: {', '.join(key_positive_features)}
+
+Provide actionable recommendations for:
+1. Promotional Campaign Strategy
+2. Customer Satisfaction Improvement
+3. Product Positioning
+4. Marketing Messaging
+
+Recommendations:
+"""
+    
+    # Use a lightweight, publicly available model
+    try:
+        # Switch to a smaller, more accessible model
+        model_name = "distilgpt2"  # Lightweight version of GPT-2
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name)
+        
+        # Prepare input
+        input_ids = tokenizer.encode(prompt, return_tensors="pt", max_length=512, truncation=True)
+        
+        # Generate text
+        output = model.generate(
+            input_ids, 
+            max_length=1024, 
+            num_return_sequences=1, 
+            temperature=0.7,  # Increased creativity
+            no_repeat_ngram_size=2  # Reduce repetition
+        )
+        
+        # Decode and clean up the generated text
+        recommendations = tokenizer.decode(output[0], skip_special_tokens=True)
+        
+        # Extract recommendations section
+        recommendations = recommendations.split("Recommendations:")[1].strip()
+        
+        return recommendations
+    
+    except Exception as e:
+        return f"Error generating recommendations: {str(e)}"
+
+# Strategic Recommendations Section
+st.title("Strategic Recommendations")
+if st.button("Generate Strategic Insights"):
+    with st.spinner('Generating strategic recommendations...'):
+        recommendations = generate_strategic_recommendations(
+            selected_product, 
+            sentiment_counts, 
+            product_reviews
+        )
+        st.write(recommendations)
