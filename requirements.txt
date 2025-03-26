@@ -8,3 +8,4 @@ seaborn
 transformers
 pipeline
 TensorFlow
+torch
