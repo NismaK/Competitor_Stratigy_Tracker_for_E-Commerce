@@ -24,7 +24,7 @@ st.table(product_data.tail())
 st.title("Sentiment Analysis Dashboard")
 
 # Sidebar for product selection
-products = reviews_df["product_name"].unique().tolist()
+products = reviews_data["product_name"].unique().tolist()
 selected_product = st.sidebar.selectbox("Choose a product to analyze:", products)
 
 # Filter data for the selected product
@@ -42,7 +42,7 @@ def get_sentiment(text):
 
 # Apply sentiment analysis
 product_reviews["Sentiment"] = product_reviews["review"].apply(get_sentiment)
-product_reviews=pd.read_csv("sentiment_results.csv")
+# product_reviews=pd.read_csv("sentiment_results.csv")
 
 # Sentiment Distribution Visualization
 st.subheader("Sentiment Distribution")
