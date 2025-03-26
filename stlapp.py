@@ -69,13 +69,29 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
+from wordcloud import WordCloud, STOPWORDS
 from transformers import pipeline
-# Use a smaller, more accessible model for text generation
-from transformers import AutoModelForCausalLM, AutoTokenizer
+import re
+# Function to extract top words
+def extract_top_words(text, n=5):
+    # Remove stopwords and clean text
+    words = re.findall(r'\w+', text.lower())
+    stopwords = set(STOPWORDS)
+    filtered_words = [word for word in words if word not in stopwords and len(word) > 2]
+    
+    # Count word frequencies
+    word_freq = {}
+    for word in filtered_words:
+        word_freq[word] = word_freq.get(word, 0) + 1
+    
+    # Sort and get top words
+    top_words = sorted(word_freq, key=word_freq.get, reverse=True)[:n]
+    return top_words
+
 # Strategic Recommendation Generation Function
 def generate_strategic_recommendations(product_name, sentiment_data, reviews_data):
     """
-    Generate strategic recommendations using a lightweight language model
+    Generate strategic recommendations using a text generation model
     
     Args:
         product_name (str): Name of the product
@@ -86,27 +102,31 @@ def generate_strategic_recommendations(product_name, sentiment_data, reviews_dat
         str: Strategic recommendations for promotional campaigns and improvements
     """
     # Analyze sentiment distribution
-    positive_percentage = (sentiment_data.get('Positive', 0) / len(sentiment_data)) * 100
-    negative_percentage = (sentiment_data.get('Negative', 0) / len(sentiment_data)) * 100
+    total_reviews = len(reviews_data)
+    positive_percentage = (sentiment_data.get('Positive', 0) / total_reviews) * 100
+    negative_percentage = (sentiment_data.get('Negative', 0) / total_reviews) * 100
     
     # Extract key insights from reviews
-    top_positive_words = WordCloud(width=800, height=400).process(all_reviews)
-    key_positive_features = sorted(top_positive_words, key=top_positive_words.get, reverse=True)[:5]
+    all_reviews_text = " ".join(str(review) for review in reviews_data["review"])
+    key_positive_features = extract_top_words(all_reviews_text)
     
     # Construct prompt for recommendation generation
     prompt = f"""Based on product analysis, generate strategic recommendations:
 
 Product: {product_name}
 Sentiment Analysis:
+- Total Reviews: {total_reviews}
 - Positive Reviews: {positive_percentage:.2f}%
 - Negative Reviews: {negative_percentage:.2f}%
-Key Positive Features: {', '.join(key_positive_features)}
+Key Product Features: {', '.join(key_positive_features)}
 
 Provide actionable recommendations for:
 1. Promotional Campaign Strategy
 2. Customer Satisfaction Improvement
 3. Product Positioning
 4. Marketing Messaging
+
+Detail specific strategies based on the sentiment and feature analysis.
 
 Recommendations:
 """
@@ -134,7 +154,8 @@ Recommendations:
         recommendations = tokenizer.decode(output[0], skip_special_tokens=True)
         
         # Extract recommendations section
-        recommendations = recommendations.split("Recommendations:")[1].strip()
+        if "Recommendations:" in recommendations:
+            recommendations = recommendations.split("Recommendations:")[1].strip()
         
         return recommendations
     
@@ -151,3 +172,4 @@ if st.button("Generate Strategic Insights"):
             product_reviews
         )
         st.write(recommendations)
+     
