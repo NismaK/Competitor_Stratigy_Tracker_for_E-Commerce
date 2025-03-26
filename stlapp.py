@@ -42,6 +42,7 @@ def get_sentiment(text):
 
 # Apply sentiment analysis
 product_reviews["Sentiment"] = product_reviews["review"].apply(get_sentiment)
+product_reviews=pd.read_csv("sentiment_results.csv")
 
 # Sentiment Distribution Visualization
 st.subheader("Sentiment Distribution")
