@@ -10,3 +10,4 @@ pipeline
 TensorFlow
 torch
 wordcloud
+tf-keras
