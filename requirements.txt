@@ -9,3 +9,4 @@ transformers
 pipeline
 TensorFlow
 torch
+wordcloud
