@@ -69,38 +69,4 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
-from transformers import pipeline
 
-# Load a publicly accessible LLM 
-llm_pipeline = pipeline("text-generation", model="google/flan-t5-xl") # Changed to a public model
-
-# Generate Strategy Button
-st.subheader("🔍 AI-Generated Strategic Recommendations")
-
-if st.button("Generate Strategy Insights"):
-    # Prepare prompt
-    competitor_prices = product_data["price"].tolist()
-    sentiment_summary = {
-        "Positive": sentiment_counts.get("Positive", 0),
-        "Negative": sentiment_counts.get("Negative", 0),
-        "Neutral": sentiment_counts.get("Neutral", 0),
-    }
-
-    prompt = f"""
-    You are a highly skilled e-commerce strategist. Based on the following data, suggest strategies to optimize pricing, promotions, and customer satisfaction:
-
-    1. **Product Name**: {selected_product}
-    2. **Competitor Prices**: {competitor_prices}
-    3. **Sentiment Analysis Summary**: {sentiment_summary}
-
-    ### Task:
-    - Identify pricing trends based on competitor prices.
-    - Leverage sentiment insights to improve customer satisfaction.
-    - Suggest promotional campaigns aligned with sentiment trends.
-    - Ensure strategies are practical, business-oriented, and competitive.
-
-    Provide structured recommendations:
-    1. **Pricing Strategy**
-    2. **Promotional Campaign Ideas**
-    3. **Customer Satisfaction Recommendations**
-    """
