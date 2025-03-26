@@ -1,12 +1,15 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from model import analyze_sentiment, load_competitor_data, load_reviews_data
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+# Set page title
 st.title("E-commerce Competitor Strategy Dashboard")
 
 # Load data
-competitor_data = load_competitor_data()
-reviews_data = load_reviews_data()
+competitor_data = pd.read_csv("Prices_Dataset.csv")
+reviews_data = pd.read_csv("product_reviews.csv")
 
 # Sidebar for product selection
 products = competitor_data["product_name"].unique().tolist()
@@ -66,5 +69,3 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
-
-
