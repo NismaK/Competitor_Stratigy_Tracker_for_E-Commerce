@@ -69,3 +69,45 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
+API_URL = "https://api.groq.com/v1/chat/completions"
+HEADERS = {"Authorization": "Bearer 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", "Content-Type": "application/json"}
+# Generate Strategic Recommendations using LLM
+import requests
+import json
+import pandas as pd
+latestP=competitor_data["price"]
+prompt = f"""
+You are a highly skilled business strategist specializing in e-commerce. Based on the following details, suggest strategies to optimize pricing, promotions, and customer satisfaction for {products}:
+
+1. Competitor Data (Prices, Discounts, Predicted Discounts):
+{latestP.to_dict()}
+
+2. Sentiment Analysis:
+{sentiment_counts.to_dict()}
+
+3. Customer Reviews:
+{product_reviews.to_dict(orient="records")}
+
+Current Date: {pd.Timestamp.today().strftime('%Y-%m-%d')}
+
+### Task:
+- Identify key pricing trends.
+- Suggest strategies for optimizing pricing over the next 3 days.
+- Recommend marketing campaigns aligned with sentiment trends.
+- Provide actionable, realistic strategies to increase sales and customer satisfaction.
+
+Structure the response as:
+1. Pricing Strategy
+2. Promotional Campaign Ideas
+3. Customer Satisfaction Recommendations
+"""
+data = {"model": "mixtral-8x7b", "messages": [{"role": "system", "content": prompt}], "temperature": 0.7, "response_format": {"type": "json_object"}}
+response = requests.post(API_URL, headers=HEADERS, data=json.dumps(data))
+
+if response.status_code == 200:
+    strategy_output = response.json().get("content", "No recommendations available.")
+else:
+    strategy_output = "Error: Unable to fetch recommendations. Check API Key and Internet."
+
+st.subheader("Strategic Recommendations")
+st.write(strategy_output)
