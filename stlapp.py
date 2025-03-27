@@ -122,5 +122,5 @@ st.title("LLM-Powered Strategic Recommendations")
 
 # Get and print recommendations directly
 recommendations = get_strategic_recommendation(competitor_data)
-print("\n📌 **Strategic Recommendations:**\n")
-print(recommendations)
+st.subheader("📌 Strategic Recommendations")
+st.write(recommendations)  # Ensure it displays correctly
