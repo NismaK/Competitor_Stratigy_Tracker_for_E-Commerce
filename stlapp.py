@@ -177,3 +177,15 @@ fig, ax = plt.subplots()
 sns.boxplot(x=flipkart_prices["product_name"], y=flipkart_prices["price"], ax=ax)  # Changed x to amazon_prices["competitor_name"]
 ax.set_title("Competitor Pricing Analysis")
 st.pyplot(fig)
+
+# Price Trends Over Time
+st.subheader("📈 Price Trends Over Time (Amazon vs Flipkart)")
+fig, ax = plt.subplots(figsize=(12, 5))
+sns.lineplot(data=product_data, x="date", y="price", hue="source", marker="o", ax=ax)
+ax.set_title(f"Price Trends Over Time for {selected_product}")
+ax.set_xlabel("Date")
+ax.set_ylabel("Price (₹)")
+plt.xticks(rotation=45)
+ax.legend(title="Competitor")
+ax.grid(True)
+st.pyplot(fig)
