@@ -155,3 +155,25 @@ predicted_discount = price_discount_prediction[price_discount_prediction["produc
 recommendations = get_strategic_recommendation(selected_product, competitor_data, sentiment_counts, predicted_discount)
 st.subheader("📌 Strategic Recommendations")
 st.write(recommendations)  # Display properly formatted output
+
+st.subheader(f"📊 Analysis & Visualization for {selected_product}")
+# Price Distribution
+import seaborn as sns
+fig, ax = plt.subplots()
+sns.histplot(price_discount_prediction["predicted_discount"], bins=10, kde=True, ax=ax)
+ax.set_title("Predicted Discount Distribution")
+st.pyplot(fig)
+
+amazon_prices = product_data[product_data["source"] == "Amazon"]
+flipkart_prices = product_data[product_data["source"] == "Flipkart"]
+
+# Competitor Pricing Boxplot
+fig, ax = plt.subplots()
+sns.boxplot(x=amazon_prices["product_name"], y=amazon_prices["price"], ax=ax)  # Changed x to amazon_prices["competitor_name"]
+ax.set_title("Competitor Pricing Analysis")
+st.pyplot(fig)
+
+fig, ax = plt.subplots()
+sns.boxplot(x=flipkart_prices["product_name"], y=flipkart_prices["price"], ax=ax)  # Changed x to amazon_prices["competitor_name"]
+ax.set_title("Competitor Pricing Analysis")
+st.pyplot(fig)
