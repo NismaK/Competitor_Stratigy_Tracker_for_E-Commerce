@@ -146,16 +146,10 @@ def get_strategic_recommendation(products, competitor_data, sentiment_counts, pr
 # Streamlit App UI
 st.title("LLM-Powered Strategic Recommendations")
 
-# Example product selection (modify as needed)
-selected_product = "Example Product"
-
 # Retrieve relevant data
 competitor_data = "Competitor A: $50, Competitor B: $45, Our Price: $48"
 sentiment_counts = "Positive: 60%, Neutral: 25%, Negative: 15%"
 predicted_discount = price_discount_prediction[price_discount_prediction["product_name"] == selected_product]
-
-# Streamlit App UI
-st.title("LLM-Powered Strategic Recommendations")
 
 # Generate and display recommendations
 recommendations = get_strategic_recommendation(selected_product, competitor_data, sentiment_counts, predicted_discount)
