@@ -156,7 +156,7 @@ recommendations = get_strategic_recommendation(selected_product, competitor_data
 st.subheader("📌 Strategic Recommendations")
 st.write(recommendations)  # Display properly formatted output
 
-st.subheader(f"📊 Analysis & Visualization for {selected_product}")
+st.title(f"📊 Analysis & Visualization for {selected_product}")
 # Price Distribution
 import seaborn as sns
 fig, ax = plt.subplots()
