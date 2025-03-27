@@ -73,41 +73,53 @@ API_URL = "https://api.groq.com/v1/chat/completions"
 HEADERS = {"Authorization": "Bearer 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", "Content-Type": "application/json"}
 # Generate Strategic Recommendations using LLM
 import requests
-import json
-import pandas as pd
-latestP=competitor_data["price"]
-prompt = f"""
-You are a highly skilled business strategist specializing in e-commerce. Based on the following details, suggest strategies to optimize pricing, promotions, and customer satisfaction for {products}:
+import streamlit as st
 
-1. Competitor Data (Prices, Discounts, Predicted Discounts):
-{latestP.to_dict()}
+# Set your Groq API key here
+GROQ_API_KEY = "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"
+API_URL = "https://api.groq.com/v1/chat/completions"
 
-2. Sentiment Analysis:
-{sentiment_counts.to_dict()}
+# Function to call Groq API for strategic recommendations
+def get_strategic_recommendation(competitor_data):
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    # Define LLM prompt dynamically
+    prompt = f"""
+    You are a highly skilled business strategist specializing in e-commerce. Based on the following details, suggest strategies to optimize pricing , promotions, and the customer satisfaction for the selected product:
 
-3. Customer Reviews:
-{product_reviews.to_dict(orient="records")}
+    1. Product Name: {products}
 
-Current Date: {pd.Timestamp.today().strftime('%Y-%m-%d')}
+    2. Competitor Data (Including Current Prices, discounts and predicted discounts): {competitor_data}
 
-### Task:
-- Identify key pricing trends.
-- Suggest strategies for optimizing pricing over the next 3 days.
-- Recommend marketing campaigns aligned with sentiment trends.
-- Provide actionable, realistic strategies to increase sales and customer satisfaction.
+    3. Sentiment Analysis: {sentiment_counts}
+    
+    Current Date is {pd.Timestamp.today().strftime('%Y-%m-%d')}
+    
+    Provide strategic recommendations, including:
+    1. **Pricing Strategy**
+    2. **Promotional Campaign Ideas**
+    3. **Customer Satisfaction Insights**
+    
+    Ensure recommendations are data-driven and actionable.
+    """
+    
+    payload = {
+        "model": "mixtral",  # Change to "llama3" if needed
+        "messages": [{"role": "system", "content": "You are an expert e-commerce strategist."},
+                     {"role": "user", "content": prompt}],
+        "temperature": 0.7
+    }
+    
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return response.json().get("choices", [{}])[0].get("message", {}).get("content", "No response")
 
-Structure the response as:
-1. Pricing Strategy
-2. Promotional Campaign Ideas
-3. Customer Satisfaction Recommendations
-"""
-data = {"model": "mixtral-8x7b", "messages": [{"role": "system", "content": prompt}], "temperature": 0.7, "response_format": {"type": "json_object"}}
-response = requests.post(API_URL, headers=HEADERS, data=json.dumps(data))
+# Streamlit App UI
+st.title("LLM-Powered Strategic Recommendations")
 
-if response.status_code == 200:
-    strategy_output = response.json().get("content", "No recommendations available.")
-else:
-    strategy_output = "Error: Unable to fetch recommendations. Check API Key and Internet."
-
-st.subheader("Strategic Recommendations")
-st.write(strategy_output)
+# Get and print recommendations directly
+recommendations = get_strategic_recommendation(competitor_data)
+print("\n📌 **Strategic Recommendations:**\n")
+print(recommendations)
