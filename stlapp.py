@@ -70,57 +70,94 @@ plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis("off")
 st.pyplot(plt)
-API_URL = "https://api.groq.com/v1/chat/completions"
-HEADERS = {"Authorization": "Bearer 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", "Content-Type": "application/json"}
-# Generate Strategic Recommendations using LLM
 import requests
 import streamlit as st
+import pandas as pd
+
+# Load price discount predictions
+price_discount_prediction = pd.read_csv("price_discount_predictions.csv")
 
 # Set your Groq API key here
 GROQ_API_KEY = "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"
-API_URL = "https://api.groq.com/v1/chat/completions"
+API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # Function to call Groq API for strategic recommendations
-def get_strategic_recommendation(competitor_data):
+def get_strategic_recommendation(products, competitor_data, sentiment_counts, predicted_discount):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
-    
-    # Define LLM prompt dynamically
+
+    # Define LLM prompt
     prompt = f"""
-    You are a highly skilled business strategist specializing in e-commerce. Based on the following details, suggest strategies to optimize pricing , promotions, and the customer satisfaction for the selected product:
+    You are a highly skilled e-commerce strategist with expertise in pricing optimization, promotional campaigns, and customer satisfaction. Your task is to analyze the given data and provide **structured** recommendations.
 
-    1. Product Name: {products}
+    ### 📌 Strategic Recommendations
 
-    2. Competitor Data (Including Current Prices, discounts and predicted discounts): {competitor_data}
+    #### 1️⃣ Pricing Strategy
+    - Should we **increase, decrease, or maintain** our pricing? Justify based on competitor trends and sentiment analysis.
+    - What is the **optimal price range**? Provide specific percentage adjustments.
+    - How will this **affect customer demand and revenue**?
 
-    3. Sentiment Analysis: {sentiment_counts}
-    
-    Current Date is {pd.Timestamp.today().strftime('%Y-%m-%d')}
-    
-    Provide strategic recommendations, including:
-    1. **Pricing Strategy**
-    2. **Promotional Campaign Ideas**
-    3. **Customer Satisfaction Insights**
-    
-    Ensure recommendations are data-driven and actionable.
+    #### 2️⃣ Promotional Campaign Ideas
+    - Suggest **3-5 detailed campaign strategies** based on competitor promotions and trends.
+    - Specify **execution tactics** (timing, platforms, target audience).
+    - Include **projected impact** (reach, engagement, sales boost).
+
+    #### 3️⃣ Customer Satisfaction Recommendations
+    - Identify **pain points** from sentiment analysis (delivery delays, pricing complaints, support issues).
+    - Recommend **actionable solutions**.
+
+    #### 4️⃣ Actionable Recommendations
+    - Based on the above insights, provide **clear, actionable strategies**.
+    - Use **markdown formatting** (### for subheadings, bullet points, bold highlights).
+    - Keep it **concise, structured, and practical**.
+
+    **Product Name:** {products}
+
+    **Competitor Insights:**
+    - **Current Prices & Discounts:** {competitor_data}
+    - **Predicted Discount Trends:** {predicted_discount}
+
+    **Customer Sentiment Analysis:** {sentiment_counts}
     """
-    
+
+    # Make API Request
     payload = {
-        "model": "mixtral",  # Change to "llama3" if needed
-        "messages": [{"role": "system", "content": "You are an expert e-commerce strategist."},
-                     {"role": "user", "content": prompt}],
+        "model": "llama-3.1-8b-instant",  
+        "messages": [
+            {"role": "system", "content": "You are an expert e-commerce strategist."},
+            {"role": "user", "content": prompt}
+        ],
         "temperature": 0.7
     }
     
     response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json().get("choices", [{}])[0].get("message", {}).get("content", "No response")
+
+    # Debugging - Print Full Response
+    print("Full API Response:", response.json())
+
+    response_data = response.json()
+    if "choices" in response_data and response_data["choices"]:
+        return response_data["choices"][0]["message"]["content"]
+    else:
+        return "⚠️ No response from the API. Check API key and request format."
 
 # Streamlit App UI
 st.title("LLM-Powered Strategic Recommendations")
 
-# Get and print recommendations directly
-recommendations = get_strategic_recommendation(competitor_data)
+# Example product selection (modify as needed)
+selected_product = "Example Product"
+
+# Retrieve relevant data
+competitor_data = "Competitor A: $50, Competitor B: $45, Our Price: $48"
+sentiment_counts = "Positive: 60%, Neutral: 25%, Negative: 15%"
+predicted_discount = price_discount_prediction[price_discount_prediction["product_name"] == selected_product]
+
+# Streamlit App UI
+st.title("LLM-Powered Strategic Recommendations")
+
+# Generate and display recommendations
+recommendations = get_strategic_recommendation(selected_product, competitor_data, sentiment_counts, predicted_discount)
 st.subheader("📌 Strategic Recommendations")
-st.write(recommendations)  # Ensure it displays correctly
+st.write(recommendations)  # Display properly formatted output
